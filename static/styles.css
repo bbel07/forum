@@ -586,7 +586,6 @@ p, .meta-line, .muted { color: var(--muted); line-height: 1.6; }
   /* Dropdown do hambúrguer no mobile: ocupa a largura certa e não sobrepõe */
   .hamburger-dropdown {
     position: fixed;
-    top: 70px;
     right: 12px;
     left: 12px;
     width: auto;

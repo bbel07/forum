@@ -35,6 +35,19 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   const open = () => {
+    // Posiciona o dropdown logo abaixo do botão no mobile
+    if (window.innerWidth <= 700) {
+      const rect = button.getBoundingClientRect();
+      dropdown.style.top = (rect.bottom + 8) + 'px';
+      dropdown.style.left = '12px';
+      dropdown.style.right = '12px';
+      dropdown.style.width = 'auto';
+    } else {
+      dropdown.style.top = '';
+      dropdown.style.left = '';
+      dropdown.style.right = '';
+      dropdown.style.width = '';
+    }
     dropdown.classList.add('open');
     button.setAttribute('aria-expanded', 'true');
   };
