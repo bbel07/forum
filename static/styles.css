@@ -592,7 +592,7 @@ p, .meta-line, .muted { color: var(--muted); line-height: 1.6; }
     width: auto;
     min-width: unset;
     max-width: unset;
-    z-index: 200;
+    z-index: 9999;
   }
 
   .session-pill { min-width: 0; align-items: center; flex-direction: row; }
@@ -617,6 +617,20 @@ p, .meta-line, .muted { color: var(--muted); line-height: 1.6; }
   .ask-preview-card,
   .intro-card,
   .intro-visual { width: 100%; }
+
+  /* Badge IFSP abaixo do texto no mobile */
+  .intro-card {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+  }
+
+  .intro-visual {
+    order: 2;
+  }
+
+  .intro-copy {
+    order: 1;
+  }
 }
 
 @media (max-width: 420px) {
