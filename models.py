@@ -8,15 +8,12 @@ class LoginAluno(db.Model):
     nome = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(150), unique=True, nullable=False)
     senha_hash = db.Column(db.String(255), nullable=False)
-    foto_url = db.Column(db.String(255), nullable=True)
     criado_em = db.Column(db.DateTime, default=datetime.utcnow)
     atualizado_em = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relacionamentos
     perguntas = db.relationship('Pergunta', backref='aluno', lazy=True)
     respostas = db.relationship('Resposta', backref='aluno', lazy=True)
-    uploads = db.relationship('Upload', foreign_keys='Upload.cp', backref='aluno', lazy=True)
-
     @property
     def role(self):
         return 'aluno'
@@ -30,11 +27,8 @@ class LoginProfessor(db.Model):
     email_p = db.Column(db.String(150), primary_key=True)
     nome_p = db.Column(db.String(100), nullable=False)
     senha_hash_p = db.Column(db.String(255), nullable=False)
-    foto_url = db.Column(db.String(255), nullable=True)
     criado_em = db.Column(db.DateTime, default=datetime.utcnow)
     atualizado_em = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
-    uploads = db.relationship('Upload', foreign_keys='Upload.email_p', backref='professor', lazy=True)
 
     @property
     def role(self):
