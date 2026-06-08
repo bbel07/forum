@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+  {% include "_dashboard_header.html" %}
+
+  <section class="split-layout">
+    <article class="card">
+      <h3>Denuncias abertas</h3>
+      <div class="stack-list">
+        {% for report in reports %}
+          <div class="thread-item">
+            <strong>{{ report.target_type|capitalize }} denunciada</strong>
+            <span>{{ format_date(report.created_at) }}</span>
+            <p>{{ report.reason }}</p>
+            <p class="meta-line">Autor: {{ author_name(report.author_id) }}</p>
+            <form method="post" action="{{ url_for('post_resolve_report', report_id=report.id) }}">
+              <button class="button secondary" type="submit">Marcar como resolvida</button>
+            </form>
+          </div>
+        {% else %}
+          <p class="muted">Nao ha denuncias pendentes.</p>
+        {% endfor %}
+      </div>
+    </article>
+
+    <article class="card">
+      <h3>Usuarios em observacao</h3>
+      <div class="stack-list">
+        {% for user in flagged_users %}
+          <div class="thread-item">
+            <strong>{{ user.name }}</strong>
+            <span>{{ role_label(user.role) }}</span>
+            <p>Falhas de login: {{ user.failed_login_count }}</p>
+            <p>Status: {{ 'bloqueado' if user.blocked else 'ativo' }}</p>
+            <form method="post" action="{{ url_for('post_toggle_user', user_id=user.id) }}">
+              <button class="button danger" type="submit">
+                {% if user.blocked %}Desbloquear{% else %}Bloquear{% endif %}
+              </button>
+            </form>
+          </div>
+        {% else %}
+          <p class="muted">Nenhum usuario em observacao.</p>
+        {% endfor %}
+      </div>
+    </article>
+  </section>
+{% endblock %}

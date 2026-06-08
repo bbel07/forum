@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block content %}
+  {% include "_dashboard_header.html" %}
+
+  <section class="card filter-card">
+    <form class="responsive-form inline-form" method="get">
+      <label>
+        <span>Buscar</span>
+        <input type="search" name="search" value="{{ filters.get('search', '') }}" placeholder="palavra-chave, tag ou autor">
+      </label>
+      <label>
+        <span>Período</span>
+        <select name="course">
+          <option value="">Todos</option>
+          {% for periodo in course_catalog.keys() %}
+            <option value="{{ periodo }}" {% if filters.get('course', '') == periodo %}selected{% endif %}>{{ periodo }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <button class="button primary" type="submit">Filtrar</button>
+    </form>
+  </section>
+
+  <section class="metrics-grid">
+    <a class="metric-card" href="{{ url_for(base_path ~ '.perfil') }}" role="button">
+      <strong>{{ metrics.users }}</strong>
+      <span>usuarios</span>
+    </a>
+    <a class="metric-card" href="{{ url_for(base_path ~ '.feed') }}" role="button">
+      <strong>{{ metrics.questions }}</strong>
+      <span>perguntas</span>
+    </a>
+    <a class="metric-card" href="{{ url_for(base_path ~ '.perfil') }}#answers" role="button">
+      <strong>{{ metrics.answers }}</strong>
+      <span>respostas</span>
+    </a>
+    {% if is_staff %}
+      <a class="metric-card" href="{{ url_for(base_path ~ '.moderacao') }}" role="button">
+        <strong>{{ metrics.reports }}</strong>
+        <span>denuncias abertas</span>
+      </a>
+    {% endif %}
+  </section>
+
+  <section class="card-grid feed-card-grid">
+    {% for question in questions %}
+      <article class="card question-card">
+        <div class="question-top">
+          <div>
+            <h3>{{ question.title }}</h3>
+            <p class="meta-line">{{ question.author_name }} | {{ question.course }} | {{ question.discipline }}</p>
+            <p class="meta-line">{{ format_date(question.created_at) }}</p>
+          </div>
+          <div class="vote-badge">{{ question.votes }} votos</div>
+        </div>
+        <p>{{ question.description }}</p>
+        <div class="badge-row">
+          {% for tag in question.tags %}
+            <span>{{ tag }}</span>
+          {% endfor %}
+          <span>{{ question.answer_count }} respostas</span>
+          {% if question.hidden %}
+            <span>oculta</span>
+          {% endif %}
+        </div>
+        <div class="action-row">
+          <a class="button primary" href="{{ url_for(base_path ~ '.forum', id_pergunta=question.id_pergunta) }}">Abrir forum</a>        </div>
+      </article>
+    {% else %}
+      <article class="card empty-card">
+        <p>Nenhuma pergunta encontrada com os filtros atuais.</p>
+      </article>
+    {% endfor %}
+  </section>
+{% endblock %}
+

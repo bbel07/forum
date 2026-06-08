@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block content %}
+  {% include "_dashboard_header.html" %}
+
+  <section class="split-layout">
+    <article class="card">
+      <h3>Editar perfil</h3>
+      <form class="responsive-form" method="post">
+        <label class="full">
+          <span>Nome</span>
+          <input type="text" name="name" value="{{ user.name }}" required>
+        </label>
+        <label class="full">
+          <span>E-mail</span>
+          <input type="email" name="email" value="{{ user.email }}" required>
+        </label>
+        {% if user.role == 'aluno' %}
+          <label>
+            <span>Curso</span>
+            <select name="course">
+              {% for course in course_catalog.keys() %}
+                <option value="{{ course }}" {% if user.course == course %}selected{% endif %}>{{ course }}</option>
+              {% endfor %}
+            </select>
+          </label>
+        {% endif %}
+        <div class="full action-row">
+          <button class="button primary" type="submit">Salvar perfil</button>
+        </div>
+      </form>
+    </article>
+
+    <article class="card" id="answers">
+      <h3>Resumo de participacao</h3>
+      <ul class="plain-list">
+        <li><strong>Perfil:</strong> {{ role_label(user.role) }}</li>
+        <li><strong>Pontos:</strong> {{ user.points }}</li>
+        <li><strong>Perguntas:</strong> {{ user_questions }}</li>
+        <li><strong>Respostas:</strong> {{ user_answers }}</li>
+        <li><strong>Notificacoes:</strong> {{ user.notifications|length }}</li>
+      </ul>
+    </article>
+  </section>
+  <script>
+    (function(){
+      try {
+        if (window.location.hash === '#answers') {
+          var el = document.getElementById('answers');
+          if (el) {
+            el.classList.add('arrived-highlight');
+            // small delay to allow browser to jump then animate
+            setTimeout(function(){ el.classList.add('pulse'); }, 50);
+            // remove highlight after a short time
+            setTimeout(function(){ el.classList.remove('arrived-highlight'); el.classList.remove('pulse'); }, 3600);
+            // ensure smooth scroll on supported browsers
+            try { el.scrollIntoView({behavior: 'smooth', block: 'start'}); } catch(e) {}
+          }
+        }
+      } catch(e) { /* silent */ }
+    })();
+  </script>
+{% endblock %}

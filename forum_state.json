@@ -1,0 +1,130 @@
+{
+  "users": [
+    {
+      "id": "user-student-ana",
+      "name": "Ana Souza",
+      "email": "ana.souza@aluno.ifsp.edu.br",
+      "cp": "CP2024001",
+      "role": "student",
+      "course": "Analise e Desenvolvimento de Sistemas",
+      "year": "2",
+      "points": 36,
+      "blocked": false,
+      "failed_login_count": 0,
+      "password_hash": "54321anA",
+      "notifications": [
+        {
+          "id": "notify-24ef878948",
+          "message": "Sua pergunta sobre JavaScript recebeu uma resposta aceita.",
+          "created_at": "2026-04-23T17:13:49"
+        }
+      ]
+    },
+    {
+      "id": "user-teacher-carlos",
+      "name": "Carlos Lima",
+      "email": "carlos.lima@ifsp.edu.br",
+      "cp": "",
+      "role": "teacher",
+      "course": "",
+      "year": "",
+      "points": 28,
+      "blocked": false,
+      "failed_login_count": 0,
+      "password_hash": "321solraC",
+      "notifications": []
+    },
+    {
+      "id": "user-mediator-julia",
+      "name": "Julia Mendes",
+      "email": "julia.mendes@ifsp.edu.br",
+      "cp": "",
+      "role": "mediator",
+      "course": "",
+      "year": "",
+      "points": 52,
+      "blocked": false,
+      "failed_login_count": 1,
+      "password_hash": "4321ailuJ",
+      "notifications": []
+    }
+  ],
+  "questions": [
+    {
+      "id": "question-1",
+      "author_id": "user-student-ana",
+      "title": "Como organizar um projeto em JavaScript puro sem framework?",
+      "description": "Estou montando um trabalho web e quero separar melhor HTML, CSS e JS. Quais praticas ajudam a manter o codigo legivel?",
+      "tags": [
+        "javascript",
+        "arquitetura",
+        "frontend"
+      ],
+      "course": "Analise e Desenvolvimento de Sistemas",
+      "semester": "3",
+      "discipline": "JavaScript Avancado",
+      "votes": 8,
+      "comments": [
+        {
+          "id": "comment-q1",
+          "author_id": "user-teacher-carlos",
+          "content": "Explique tambem como voce pretende organizar os dados.",
+          "created_at": "2026-04-23T13:43:49"
+        }
+      ],
+      "answers": [
+        {
+          "id": "answer-1",
+          "author_id": "user-teacher-carlos",
+          "content": "Comece por modulos pequenos e separe renderizacao das regras de negocio.",
+          "votes": 10,
+          "comments": [],
+          "created_at": "2026-04-23T14:43:49"
+        },
+        {
+          "id": "answer-2",
+          "author_id": "user-mediator-julia",
+          "content": "Padronize nomes de componentes e use armazenamento local na prototipacao.",
+          "votes": 4,
+          "comments": [],
+          "created_at": "2026-04-23T15:43:49"
+        }
+      ],
+      "accepted_answer_id": "answer-1",
+      "hidden": false,
+      "created_at": "2026-04-23T11:43:49"
+    },
+    {
+      "id": "question-2",
+      "author_id": "user-teacher-carlos",
+      "title": "Qual a diferenca entre chave primaria e chave estrangeira?",
+      "description": "Quero uma explicacao objetiva para revisar Banco de Dados antes da prova.",
+      "tags": [
+        "banco de dados",
+        "sql",
+        "modelagem"
+      ],
+      "course": "Analise e Desenvolvimento de Sistemas",
+      "semester": "2",
+      "discipline": "Banco de Dados",
+      "votes": 5,
+      "comments": [],
+      "answers": [],
+      "accepted_answer_id": null,
+      "hidden": false,
+      "created_at": "2026-04-23T08:43:49"
+    }
+  ],
+  "reports": [
+    {
+      "id": "report-1",
+      "target_type": "question",
+      "target_id": "question-2",
+      "question_id": "question-2",
+      "status": "open",
+      "reason": "Verificar se a pergunta precisa de mais contexto antes de aprovar.",
+      "created_at": "2026-04-23T16:58:49",
+      "author_id": "user-mediator-julia"
+    }
+  ]
+}

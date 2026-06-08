@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="auth-page">
+  <div class="auth-card card">
+    <p class="eyebrow">Crie sua conta</p>
+    <h2>Cadastro</h2>
+
+    <!-- Escolha de tipo: radio CSS puro -->
+    <input type="radio" name="tipo_cadastro" id="tipo-aluno"    class="tab-radio" checked>
+    <input type="radio" name="tipo_cadastro" id="tipo-equipe"   class="tab-radio">
+
+    <nav class="tab-nav tab-nav-2">
+      <label for="tipo-aluno"  class="tab-label">Sou aluno</label>
+      <label for="tipo-equipe" class="tab-label">Sou professor / mediador</label>
+    </nav>
+
+    <!-- Formulário aluno -->
+    <div class="tab-panel-inline">
+      <form class="stack-form" method="post">
+        <input type="hidden" name="action" value="register_student">
+        <label><span>Nome completo</span><input type="text" name="name" required></label>
+        <label>
+          <span>CP (número de matrícula)</span>
+          <input type="text" name="cp" placeholder="Ex: CP2024001" required>
+        </label>
+        <label>
+          <span>E-mail institucional</span>
+          <input type="email" name="email" placeholder="nome@aluno.ifsp.edu.br" required>
+          <small class="field-hint">Deve terminar com @aluno.ifsp.edu.br</small>
+        </label>
+        <label><span>Confirmar e-mail</span><input type="email" name="email_confirm" required></label>
+        <label>
+          <span>Curso</span>
+          <select name="course">
+            {% for course in course_catalog.keys() %}
+              <option value="{{ course }}">{{ course }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label class="checkbox-field">
+          <input type="checkbox" name="accept_policy" required>
+          <span>Li e concordo com a <a href="{{ url_for('privacy') }}">Política e Privacidade</a>.</span>
+        </label>
+        <label><span>Senha</span><input type="password" name="password" placeholder="Mín. 8 caracteres com letra e número" required></label>
+        <button class="button primary" type="submit">Criar conta de aluno</button>
+      </form>
+    </div>
+
+    <!-- Formulário professor/mediador -->
+    <div class="tab-panel-inline">
+      <form class="stack-form" method="post">
+        <input type="hidden" name="action" value="register_staff">
+        <label><span>Nome completo</span><input type="text" name="name" required></label>
+        <label>
+          <span>E-mail IFSP</span>
+          <input type="email" name="email" placeholder="nome@ifsp.edu.br" required>
+          <small class="field-hint">Deve terminar com @ifsp.edu.br</small>
+        </label>
+        <label><span>Confirmar e-mail</span><input type="email" name="email_confirm" required></label>
+        <label>
+          <span>Perfil</span>
+          <select name="role">
+            <option value="teacher">Professor</option>
+            <option value="mediator">Mediador</option>
+          </select>
+        </label>
+        <label class="checkbox-field">
+          <input type="checkbox" name="accept_policy" required>
+          <span>Li e concordo com a <a href="{{ url_for('privacy') }}">Política e Privacidade</a>.</span>
+        </label>
+        <label><span>Senha</span><input type="password" name="password" placeholder="Mín. 8 caracteres com letra e número" required></label>
+        <button class="button primary" type="submit">Criar conta da equipe</button>
+      </form>
+    </div>
+
+    <div class="auth-links">
+      <a href="{{ url_for('login') }}">Já tenho cadastro</a>
+    </div>
+    <div class="auth-back">
+      <a class="button ghost" href="{{ url_for('home') }}">← Voltar ao fórum</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

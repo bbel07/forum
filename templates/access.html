@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <section class="access-hero">
+    <div class="access-copy">
+      <p class="eyebrow">Versao Python + web</p>
+      <h2>Login, cadastro e recuperacao em telas separadas dentro de uma pagina responsiva.</h2>
+      <p>O sistema continua com feed, forum, notificacoes, perfil e moderacao, mas agora com backend em Python e area separada para alunos e para professores/mediadores.</p>
+      <div class="badge-row">
+        <span>Feed separado do forum</span>
+        <span>Area de aluno</span>
+        <span>Area de equipe</span>
+        <span>Layout responsivo</span>
+      </div>
+    </div>
+    <aside class="access-panel">
+      <h3>Acessos de demonstracao</h3>
+      <ul class="plain-list">
+        <li><strong>Aluno</strong>: ana.souza@aluno.ifsp.edu.br ou CP2024001 / Ana12345</li>
+        <li><strong>Professor</strong>: carlos.lima@ifsp.edu.br / Carlos123</li>
+        <li><strong>Mediador</strong>: julia.mendes@ifsp.edu.br / Julia1234</li>
+      </ul>
+      <form method="post">
+        <input type="hidden" name="action" value="reset_demo">
+        <button class="button secondary" type="submit">Restaurar dados demo</button>
+      </form>
+    </aside>
+  </section>
+
+  <!-- Abas de acesso -->
+  <div class="tab-wrapper">
+
+    <!-- Inputs radio controlam qual aba está ativa (CSS puro) -->
+    <input type="radio" name="tab" id="tab-login"    class="tab-radio" checked>
+    <input type="radio" name="tab" id="tab-aluno"    class="tab-radio">
+    <input type="radio" name="tab" id="tab-equipe"   class="tab-radio">
+    <input type="radio" name="tab" id="tab-recover"  class="tab-radio">
+
+    <nav class="tab-nav">
+      <label for="tab-login"   class="tab-label">Login</label>
+      <label for="tab-aluno"   class="tab-label">Cadastro aluno</label>
+      <label for="tab-equipe"  class="tab-label">Cadastro equipe</label>
+      <label for="tab-recover" class="tab-label">Recuperar senha</label>
+    </nav>
+
+    <!-- Painel: Login -->
+    <article class="tab-panel card">
+      <form class="stack-form" method="post">
+        <input type="hidden" name="action" value="login">
+        <label>
+          <span>Tipo de acesso</span>
+          <select name="role">
+            <option value="student">Aluno</option>
+            <option value="teacher">Professor</option>
+            <option value="mediator">Mediador</option>
+          </select>
+        </label>
+        <label>
+          <span>Identificador</span>
+          <input type="text" name="identifier" placeholder="CP ou e-mail" required>
+        </label>
+        <label>
+          <span>Senha</span>
+          <input type="password" name="password" required>
+        </label>
+        <button class="button primary" type="submit">Entrar</button>
+      </form>
+    </article>
+
+    <!-- Painel: Cadastro aluno -->
+    <article class="tab-panel card">
+      <form class="stack-form" method="post">
+        <input type="hidden" name="action" value="register_student">
+        <label><span>Nome</span><input type="text" name="name" required></label>
+        <label><span>E-mail institucional</span><input type="email" name="email" placeholder="nome@aluno.ifsp.edu.br" required></label>
+        <label><span>Confirmar e-mail</span><input type="email" name="email_confirm" required></label>
+        <label><span>CP</span><input type="text" name="cp" required></label>
+        <label>
+          <span>Curso</span>
+          <select name="course">
+            {% for course in course_catalog.keys() %}
+              <option value="{{ course }}">{{ course }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label><span>Ano do curso</span><input type="number" name="year" min="1" max="6" value="1" required></label>
+        <label><span>Senha</span><input type="password" name="password" required></label>
+        <button class="button primary" type="submit">Cadastrar aluno</button>
+      </form>
+    </article>
+
+    <!-- Painel: Cadastro equipe -->
+    <article class="tab-panel card">
+      <form class="stack-form" method="post">
+        <input type="hidden" name="action" value="register_staff">
+        <label><span>Nome</span><input type="text" name="name" required></label>
+        <label><span>E-mail IFSP</span><input type="email" name="email" placeholder="nome@ifsp.edu.br" required></label>
+        <label><span>Confirmar e-mail</span><input type="email" name="email_confirm" required></label>
+        <label>
+          <span>Perfil</span>
+          <select name="role">
+            <option value="teacher">Professor</option>
+            <option value="mediator">Mediador</option>
+          </select>
+        </label>
+        <label><span>Senha</span><input type="password" name="password" required></label>
+        <button class="button primary" type="submit">Cadastrar equipe</button>
+      </form>
+    </article>
+
+    <!-- Painel: Recuperar senha -->
+    <article class="tab-panel card">
+      <form class="stack-form" method="post">
+        <input type="hidden" name="action" value="recover_password">
+        <label><span>E-mail</span><input type="email" name="email" required></label>
+        <label><span>Codigo</span><input type="text" name="code" placeholder="123456" required></label>
+        <label><span>Nova senha</span><input type="password" name="password" required></label>
+        <label><span>Confirmar senha</span><input type="password" name="password_confirm" required></label>
+        <button class="button primary" type="submit">Atualizar senha</button>
+      </form>
+    </article>
+
+  </div><!-- /tab-wrapper -->
+{% endblock %}

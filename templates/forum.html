@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+
+{% block content %}
+  {% include "_dashboard_header.html" %}
+
+  <section class="card question-focus">
+    <div class="question-top">
+      <div>
+        <p class="eyebrow">Forum</p>
+        <h2>{{ question.title }}</h2>
+        <p class="meta-line">{{ question.author_name }} | {{ question.course }} | {{ question.discipline }} | {{ question.semester }}o semestre</p>
+        <p class="meta-line">{{ format_date(question.created_at) }}</p>
+      </div>
+      <div class="vote-badge">{{ question.votes }} votos</div>
+    </div>
+
+    <p>{{ question.description }}</p>
+
+    <div class="badge-row">
+      {% for tag in question.tags %}
+        <span>{{ tag }}</span>
+      {% endfor %}
+    </div>
+
+    <div class="action-row wrap">
+      <form method="post" action="{{ url_for(base_path ~ '.post_voto_pergunta', id_pergunta=question.id) }}">
+        <input type="hidden" name="value" value="1">
+        <input type="hidden" name="next_url" value="{{ request.path }}">
+        <button class="button ghost" type="submit">Voto +</button>
+      </form>
+      <form method="post" action="{{ url_for(base_path ~ '.post_voto_pergunta', id_pergunta=question.id) }}">
+        <input type="hidden" name="value" value="-1">
+        <input type="hidden" name="next_url" value="{{ request.path }}">
+        <button class="button ghost" type="submit">Voto -</button>
+      </form>
+      {% if not is_staff %}
+        <form method="post" action="{{ url_for('aluno.post_denuncia_pergunta', id_pergunta=question.id) }}">
+          <input type="hidden" name="next_url" value="{{ request.path }}">
+          <button class="button ghost" type="submit">Denunciar</button>
+        </form>
+      {% endif %}
+      {% if is_staff %}
+        <form method="post" action="{{ url_for('equipe.post_ocultar_pergunta', id_pergunta=question.id) }}">
+          <input type="hidden" name="next_url" value="{{ request.path }}">
+          <button class="button danger" type="submit">Ocultar pergunta</button>
+        </form>
+      {% endif %}
+    </div>
+  </section>
+
+  <section class="split-layout">
+    <article class="card">
+      <h3>Comentarios da pergunta</h3>
+      <div class="thread-list">
+        {% for comment in question.comments %}
+          <div class="thread-item">
+            <strong>{{ comment.author_name }}</strong>
+            <span>{{ format_date(comment.created_at) }}</span>
+            <p>{{ comment.content }}</p>
+          </div>
+        {% else %}
+          <p class="muted">Nenhum comentario ainda.</p>
+        {% endfor %}
+      </div>
+
+      <form class="stack-form" method="post" action="{{ url_for(base_path ~ '.post_comentario_pergunta', id_pergunta=question.id) }}">
+        <input type="hidden" name="next_url" value="{{ request.path }}">
+        <label>
+          <span>Adicionar comentario</span>
+          <textarea name="content" rows="3" required></textarea>
+        </label>
+        <button class="button primary" type="submit">Comentar</button>
+      </form>
+    </article>
+
+    {% if not is_staff %}
+      <article class="card">
+        <h3>Nova resposta</h3>
+        <form class="stack-form" method="post" action="{{ url_for('aluno.post_resposta', id_pergunta=question.id) }}">
+          <input type="hidden" name="next_url" value="{{ request.path }}">
+          <label>
+            <span>Sua resposta</span>
+            <textarea name="content" rows="6" required></textarea>
+          </label>
+          <button class="button primary" type="submit">Enviar resposta</button>
+        </form>
+      </article>
+    {% endif %}
+  </section>
+
+  <section class="card-grid">
+    {% for answer in question.answers %}
+      <article class="card answer-card {% if answer.is_accepted %}accepted{% endif %}">
+        <div class="question-top">
+          <div>
+            <h3>{{ answer.author_name }}</h3>
+            <p class="meta-line">{{ format_date(answer.created_at) }}</p>
+          </div>
+          <div class="vote-badge">{{ answer.votes }} votos</div>
+        </div>
+
+        <p>{{ answer.content }}</p>
+
+        <div class="badge-row">
+          {% if answer.is_accepted %}
+            <span>Resposta aceita</span>
+          {% endif %}
+        </div>
+
+        <div class="action-row wrap">
+          <form method="post" action="{{ url_for(base_path ~ '.post_voto_resposta', id_pergunta=question.id, id_r=answer.id) }}">
+            <input type="hidden" name="value" value="1">
+            <input type="hidden" name="next_url" value="{{ request.path }}">
+            <button class="button ghost" type="submit">Voto +</button>
+          </form>
+          <form method="post" action="{{ url_for(base_path ~ '.post_voto_resposta', id_pergunta=question.id, id_r=answer.id) }}">
+            <input type="hidden" name="value" value="-1">
+            <input type="hidden" name="next_url" value="{{ request.path }}">
+            <button class="button ghost" type="submit">Voto -</button>
+          </form>
+          {% if not is_staff %}
+            <form method="post" action="{{ url_for('aluno.post_denuncia_resposta', id_pergunta=question.id, id_r=answer.id) }}">
+              <input type="hidden" name="next_url" value="{{ request.path }}">
+              <button class="button ghost" type="submit">Denunciar</button>
+            </form>
+          {% endif %}
+          {% if can_accept %}
+            <form method="post" action="{{ url_for(base_path ~ '.post_aceitar_resposta', id_pergunta=question.id, id_r=answer.id) }}">
+              <input type="hidden" name="next_url" value="{{ request.path }}">
+              <button class="button secondary" type="submit">
+                {% if answer.is_accepted %}Desmarcar aceita{% else %}Marcar como aceita{% endif %}
+              </button>
+            </form>
+          {% endif %}
+          {% if is_staff %}
+            <form method="post" action="{{ url_for('equipe.post_remover_resposta', id_pergunta=question.id, id_r=answer.id) }}">
+              <input type="hidden" name="next_url" value="{{ request.path }}">
+              <button class="button danger" type="submit">Excluir resposta</button>
+            </form>
+          {% endif %}
+        </div>
+
+        <div class="thread-list compact">
+          {% for comment in answer.comments %}
+            <div class="thread-item">
+              <strong>{{ comment.author_name }}</strong>
+              <span>{{ format_date(comment.created_at) }}</span>
+              <p>{{ comment.content }}</p>
+            </div>
+          {% else %}
+            <p class="muted">Nenhum comentario nesta resposta.</p>
+          {% endfor %}
+        </div>
+
+        <form class="stack-form" method="post" action="{{ url_for(base_path ~ '.post_comentario_resposta', id_pergunta=question.id, id_r=answer.id) }}">
+          <input type="hidden" name="next_url" value="{{ request.path }}">
+          <label>
+            <span>Comentar resposta</span>
+            <textarea name="content" rows="3" required></textarea>
+          </label>
+          <button class="button ghost" type="submit">Enviar comentario</button>
+        </form>
+      </article>
+    {% else %}
+      <article class="card empty-card">
+        <p>Nenhuma resposta ainda. Seja o primeiro a responder.</p>
+      </article>
+    {% endfor %}
+  </section>
+{% endblock %}

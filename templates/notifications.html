@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+  {% include "_dashboard_header.html" %}
+
+  <section class="card-grid">
+    {% for notification in notifications %}
+      <article class="card">
+        <p class="meta-line">{{ format_date(notification.created_at) }}</p>
+        <p>{{ notification.message }}</p>
+      </article>
+    {% else %}
+      <article class="card empty-card">
+        <p>Voce ainda nao possui notificacoes.</p>
+      </article>
+    {% endfor %}
+  </section>
+{% endblock %}

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ page_title | default('Fórum') }} - Código do Sucesso</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <script defer src="{{ url_for('static', filename='app.js') }}"></script>
+</head>
+<body>
+  <div class="site-shell">
+
+    {% if current_user %}
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">IFSP Campinas</p>
+          <h1>Código do Sucesso</h1>
+        </div>
+        <div class="topbar-actions">
+          <div class="hamburger-menu" data-hamburger>
+            <button class="hamburger-button" type="button" aria-expanded="false"> 
+              <svg width="20" height="14" viewBox="0 0 20 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <rect width="20" height="2" rx="1" fill="currentColor"></rect>
+                <rect y="6" width="20" height="2" rx="1" fill="currentColor"></rect>
+                <rect y="12" width="20" height="2" rx="1" fill="currentColor"></rect>
+              </svg>
+            </button>
+            <div class="hamburger-dropdown" data-hamburger-dropdown>
+              <div class="hamburger-area">
+                <p class="eyebrow">{{ area_label if area_label is defined else 'Área' }}</p>
+                <h3>{{ area_title if area_title is defined else '' }}</h3>
+              </div>
+              <div class="hamburger-user">
+                <div class="avatar">
+                  {% if current_user.foto_url %}
+                    <img src="{{ url_for('static', filename=current_user.foto_url) }}" alt="Foto de perfil">
+                  {% else %}
+                    {{ (current_user.nome if current_user.nome else current_user.nome_p)[0]|upper }}
+                  {% endif %}
+                </div>
+                <div>
+                  <strong>{{ current_user.nome if current_user.nome else current_user.nome_p }}</strong>
+                  <span>{{ role_label(current_user.role) if current_user.role is defined else 'Equipe' }}</span>
+                </div>
+              </div>
+              <div class="hero-meta">
+                <div class="dropdown-link" aria-hidden="true">{{ current_user.points }} pontos</div>
+                {% if current_user.course %}
+                  <div class="dropdown-link">{{ current_user.course }}</div>
+                {% endif %}
+                {# notificacoes removidas daqui — link de Notificações permanece em links do menu #}
+              </div>
+              <div class="hamburger-links">
+                {% if current_user.role == 'aluno' %}
+                  <a class="dropdown-link" href="{{ url_for('aluno.perfil') }}">Perfil</a>
+                  <a class="dropdown-link" href="{{ url_for('aluno.notificacoes') }}">Notificações</a>
+                {% else %}
+                  <a class="dropdown-link" href="{{ url_for('equipe.perfil') }}">Perfil</a>
+                  <a class="dropdown-link" href="{{ url_for('equipe.notificacoes') }}">Notificações</a>
+                {% endif %}
+                <form method="post" action="{{ url_for('logout') }}" class="dropdown-logout">
+                  <button class="button ghost" type="submit">Sair</button>
+                </form>
+              </div>
+            </div>
+          </div>
+          <!-- profile avatar removed (logout moved into hamburger menu) -->
+        </div>
+      </header>
+    {% endif %}
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <section class="flash-stack">
+          {% for category, message in messages %}
+            <div class="flash flash-{{ category }}">{{ message }}</div>
+          {% endfor %}
+        </section>
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+  </div>
+</body>
+</html>

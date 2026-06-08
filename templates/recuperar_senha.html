@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="auth-page">
+  <div class="auth-card card">
+    <p class="eyebrow">Redefinir acesso</p>
+    <h2>Recuperar senha</h2>
+    <p class="muted" style="margin-bottom:1.2rem">Informe seu e-mail cadastrado para receber um código de verificação. Em seguida, use o código para redefinir sua senha.</p>
+
+    <form class="stack-form" method="post">
+      <input type="hidden" name="action" value="send_code">
+      <label><span>E-mail cadastrado</span><input type="email" name="email" value="{{ reset_email or '' }}" required autofocus></label>
+      <button class="button primary" type="submit">Enviar código</button>
+    </form>
+
+    {% if reset_code %}
+    <div class="auth-message code-message">
+      <p>
+        <strong>Código gerado:</strong>
+        <span id="reset-code-text" style="font-family: monospace;">{{ reset_code }}</span>
+        <button id="copy-code-btn" type="button" class="button secondary" style="margin-left:0.5rem;">Copiar</button>
+      </p>
+      <p>Copie este código e cole na próxima parte para redefinir sua senha. O código expira em 5 minutos.</p>
+    </div>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const copyBtn = document.getElementById('copy-code-btn');
+        if (copyBtn) {
+          copyBtn.addEventListener('click', function() {
+            const codeText = document.getElementById('reset-code-text').textContent.trim();
+            navigator.clipboard.writeText(codeText).then(() => {
+              copyBtn.textContent = 'Copiado!';
+              setTimeout(() => {
+                copyBtn.textContent = 'Copiar';
+              }, 1500);
+            }).catch(() => {
+              alert('Não foi possível copiar o código. Selecione e copie manualmente.');
+            });
+          });
+        }
+      });
+    </script>
+    {% endif %}
+
+    <form class="stack-form" method="post">
+      <input type="hidden" name="action" value="reset_password">
+      <input type="hidden" name="email" value="{{ reset_email or '' }}">
+      <label><span>Código de verificação</span><input type="text" name="code" placeholder="Cód. de 6 dígitos" required></label>
+      <label><span>Nova senha</span><input type="password" name="password" placeholder="Mín. 8 caracteres" required></label>
+      <label><span>Confirmar nova senha</span><input type="password" name="password_confirm" required></label>
+      <button class="button primary" type="submit">Redefinir senha</button>
+    </form>
+
+    <div class="auth-links">
+      <a href="{{ url_for('login') }}">Lembrei minha senha</a>
+      <span>·</span>
+      <a href="{{ url_for('cadastro') }}">Criar nova conta</a>
+    </div>
+    <div class="auth-back">
+      <a class="button ghost" href="{{ url_for('home') }}">← Voltar ao fórum</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

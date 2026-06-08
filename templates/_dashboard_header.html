@@ -1,0 +1,10 @@
+<nav class="page-nav">
+  <a href="{{ url_for(base_path ~ '.feed') }}">Feed</a>
+  {% if base_path != 'equipe' %}
+    <a class="button highlight" href="{{ url_for(base_path ~ '.nova_pergunta') }}">Nova pergunta</a>
+  {% endif %}
+  <a href="{{ url_for(base_path ~ '.disciplinas') }}">Disciplinas</a>
+  {% if base_path == 'equipe' %}
+    <a href="{{ url_for('equipe.moderacao') }}">Moderacao</a>
+  {% endif %}
+</nav>

@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="auth-page">
+  <div class="auth-card card">
+    <p class="eyebrow">Bem-vindo de volta</p>
+    <h2>Entrar</h2>
+
+    <form class="stack-form" method="post">
+      <input type="hidden" name="action" value="login">
+      {% if next_url %}
+        <input type="hidden" name="next" value="{{ next_url }}">
+      {% endif %}
+
+      <label>
+        <span>E-mail</span>
+        <input type="email" name="identifier" placeholder="seu@email.com" required autofocus>
+      </label>
+      <label>
+        <span>Senha</span>
+        <input type="password" name="password" required>
+      </label>
+
+      <button class="button primary" type="submit">Entrar</button>
+    </form>
+
+    <div class="auth-links">
+      <a href="{{ url_for('recuperar_senha') }}">Esqueci minha senha</a>
+    </div>
+
+    <div class="auth-back">
+      <a class="button ghost" href="{{ url_for('home') }}">← Voltar ao fórum</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

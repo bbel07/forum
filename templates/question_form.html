@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block content %}
+  {% include "_dashboard_header.html" %}
+
+  <section class="card" data-question-form data-course-catalog='{{ course_catalog|tojson }}'>
+    <form class="responsive-form" method="post">
+      <label class="full">
+        <span>Titulo</span>
+        <input type="text" name="title" maxlength="120" required>
+      </label>
+      <label class="full">
+        <span>Descricao</span>
+        <textarea name="description" rows="8" maxlength="600" required></textarea>
+      </label>
+      <label class="full">
+        <span>Tags</span>
+        <input type="text" name="tags" placeholder="javascript, banco de dados, redes">
+      </label>
+      <label>
+        <span>Período</span>
+        <select name="course" data-course-select>
+          {% for periodo in course_catalog.keys() %}
+            <option value="{{ periodo }}">{{ periodo }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>
+        <span>Disciplina</span>
+        <select name="discipline" data-discipline-select>
+          {% set primeiro = course_catalog.keys()|list|first %}
+          {% for disciplina in course_catalog[primeiro] %}
+            <option value="{{ disciplina }}">{{ disciplina }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <div class="full action-row">
+        <button class="button primary" type="submit">Publicar pergunta</button>
+      </div>
+    </form>
+  </section>
+{% endblock %}

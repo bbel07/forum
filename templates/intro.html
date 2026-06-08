@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="intro-shell">
+  <div class="intro-card card">
+    <div class="intro-copy">
+      <p class="eyebrow">Bem-vindo</p>
+      <h1>Código do Sucesso</h1>
+      <p class="intro-text">O fórum educativo do IFSP Campinas para tirar dúvidas, compartilhar aprendizado e crescer com a comunidade.</p>
+      <div class="intro-actions">
+        <a class="button primary" href="{{ url_for('cadastro') }}">Cadastrar-se</a>
+        <a class="button ghost" href="{{ url_for('login') }}">Entrar</a>
+      </div>
+      <a class="privacy-link" href="{{ url_for('privacy') }}">Política e Privacidade</a>
+    </div>
+    <div class="intro-visual">
+      <div class="intro-badge">IFSP</div>
+      <p class="intro-note">Participe de perguntas, respostas e discussões em tempo real.</p>
+    </div>
+  </div>
+
+  <section class="card-grid">
+    {% for question in questions %}
+      <article class="card question-card">
+        <div class="question-top">
+          <div>
+            <h3>{{ question.title }}</h3>
+            <p class="meta-line">{{ question.course }} · {{ question.discipline }} · {{ question.semester }}º sem.</p>
+            <p class="meta-line">{{ format_date(question.created_at) }}</p>
+          </div>
+          <div class="vote-badge">{{ question.votes }} votos</div>
+        </div>
+        <p>{{ question.description }}</p>
+        <div class="badge-row">
+          {% for tag in question.tags %}
+            <span>{{ tag }}</span>
+          {% endfor %}
+          <span>{{ question.answer_count }} respostas</span>
+          {% if question.hidden %}
+            <span>oculta</span>
+          {% endif %}
+        </div>
+        {% if question.answers %}
+          <div class="answers-preview">
+            <p class="eyebrow">Respostas</p>
+            {% for answer in question.answers[:2] %}
+              <div class="answer-preview">
+                <p>{{ answer.content }}</p>
+                <p class="meta-line">por {{ answer.author_name }} · {{ answer.votes }} votos</p>
+              </div>
+            {% endfor %}
+            {% if question.answer_count > 2 %}
+              <p class="small-muted">Mostrando 2 de {{ question.answer_count }} respostas</p>
+            {% endif %}
+          </div>
+        {% endif %}
+        <div class="action-row">
+          <a class="button primary" href="{{ url_for('login') }}?next={{ request.path }}">Entrar para responder</a>
+        </div>
+      </article>
+    {% endfor %}
+  </section>
+</section>
+{% endblock %}

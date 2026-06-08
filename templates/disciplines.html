@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+  {% include "_dashboard_header.html" %}
+
+  <section class="card-grid">
+    {% for periodo, materias in course_catalog.items() %}
+      <article class="card">
+        <h3>{{ periodo }}</h3>
+        <ul class="plain-list">
+          {% for materia in materias %}
+            <li>{{ materia }}</li>
+          {% endfor %}
+        </ul>
+      </article>
+    {% endfor %}
+  </section>
+{% endblock %}
