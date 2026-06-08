@@ -115,6 +115,10 @@ a:focus-visible {
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow);
+}
+
+/* backdrop-filter apenas na topbar (não nos cards — cria stacking context que bloqueia z-index) */
+.topbar {
   backdrop-filter: blur(16px);
 }
 
