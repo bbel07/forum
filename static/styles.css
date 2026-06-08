@@ -738,11 +738,8 @@ p, .meta-line, .muted { color: var(--muted); line-height: 1.6; }
 }
 
 .intro-card {
-  display: flex;
-  flex-direction: column;
   justify-content: flex-start;
   min-height: 520px;
-  height: 100%;
 }
 
 .card-grid > .card {
