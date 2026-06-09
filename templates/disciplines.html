@@ -9,7 +9,9 @@
         <h3>{{ periodo }}</h3>
         <ul class="plain-list">
           {% for materia in materias %}
-            <li>{{ materia }}</li>
+            <li>
+              <a href="{{ url_for(base_path ~ '.disciplina_forum', disciplina=materia) }}">{{ materia }}</a>
+            </li>
           {% endfor %}
         </ul>
       </article>

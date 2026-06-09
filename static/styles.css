@@ -99,8 +99,9 @@ a:focus-visible {
 
 /* ── Shell ──────────────────────────────────────────── */
 .site-shell {
-  width: min(1280px, calc(100% - 32px));
-  margin: 22px auto 40px;
+  width: min(1280px, calc(100% - 24px));
+  margin: 18px auto 32px;
+  max-width: 1280px;
 }
 
 /* ── Cartões / superfícies ──────────────────────────── */
@@ -389,6 +390,14 @@ p, .meta-line, .muted { color: var(--muted); line-height: 1.6; }
   color: var(--accent-dark);
   text-align: center;
   line-height: 1.2;
+}
+
+.page-nav a.nav-button {
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: none;
+  padding: 18px 26px;
+  font-size: 1rem;
 }
 
 @media (max-width: 660px) {
@@ -955,16 +964,52 @@ textarea { resize: vertical; min-height: 120px; }
   }
 
   .topbar { position: static; }
+  .topbar-actions { justify-content: flex-end; }
+  .page-nav {
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .page-nav a { flex: 1 1 auto; }
+  .page-nav a.nav-button { flex: 1 1 min(120px, 33%); max-width: 180px; }
 
   .responsive-form { grid-template-columns: 1fr; }
   .responsive-form .full { grid-column: auto; }
-  .session-pill { min-width: 0; }
+  .inline-form { display: grid; grid-template-columns: 1fr; }
+  .inline-form label { width: 100%; }
+
+  .card-grid { grid-template-columns: 1fr; }
+  .feed-card-grid { width: 100%; }
+  .question-card { min-height: auto; }
+  .stack-form,
+  .stack-list,
+  .thread-list { width: 100%; }
+
+  .action-row,
+  .badge-row,
+  .hero-meta {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .action-row a,
+  .action-row button,
+  .action-row form,
+  .topbar-actions form,
+  .topbar-actions .button {
+    width: 100%;
+  }
+
+  .metric-card {
+    min-height: 140px;
+  }
 }
 
 @media (max-width: 640px) {
   .site-shell {
     width: min(100%, calc(100% - 18px));
-    margin-top: 10px;
+    margin: 14px auto 24px;
   }
 
   .topbar,
@@ -978,19 +1023,41 @@ textarea { resize: vertical; min-height: 120px; }
     border-radius: 20px;
   }
 
-  .button,
+  .page-nav {
+    gap: 10px;
+    align-items: stretch;
+  }
+
   .page-nav a,
+  .button,
   .action-row form,
-  .action-row a { width: 100%; }
+  .action-row a,
+  .topbar-actions .button {
+    width: 100%;
+  }
 
-  .topbar-actions form,
-  .topbar-actions .button { width: 100%; }
-
-  .hero-meta, .badge-row { flex-wrap: wrap; }
+  .topbar-actions { justify-content: flex-end; }
+  .hero-meta,
+  .badge-row { flex-wrap: wrap; }
   .vote-badge { align-self: flex-start; }
   textarea { min-height: 96px; }
+  .question-top > * { width: 100%; }
+  .thread-item { padding: 14px; }
+  .plain-list { padding-left: 14px; }
 }
 
+@media (max-width: 520px) {
+  .page-nav a { flex: 1 1 90px; min-width: 80px; padding: 8px 12px; font-size: 0.94rem; }
+}
+
+@media (max-width: 420px) {
+  .topbar h1 { font-size: 1.25rem; }
+  .eyebrow { font-size: 0.64rem; }
+  .avatar { width: 36px; height: 36px; }
+  .flash { font-size: 0.95rem; }
+  .auth-card { padding: 14px; }
+  .auth-card .button { width: 100%; }
+}
 
 /* ===================================================
    ABAS DE ACESSO — CSS puro com :checked

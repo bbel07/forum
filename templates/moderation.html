@@ -11,9 +11,16 @@
           <div class="thread-item">
             <strong>{{ report.target_type|capitalize }} denunciada</strong>
             <span>{{ format_date(report.created_at) }}</span>
-            <p>{{ report.reason }}</p>
-            <p class="meta-line">Autor: {{ author_name(report.author_id) }}</p>
-            <form method="post" action="{{ url_for('post_resolve_report', report_id=report.id) }}">
+            <p class="meta-line"><strong>Denunciado por:</strong> {{ report.reporter_name }}</p>
+            <p class="meta-line"><strong>Denunciado:</strong> {{ report.target_name }}</p>
+            {% if report.target_title %}
+              <p class="meta-line"><strong>Conteúdo denunciado:</strong> {{ report.target_title }}</p>
+            {% endif %}
+            <p>{{ report.target_content }}</p>
+            {% if report.reason %}
+              <p class="meta-line"><strong>Motivo:</strong> {{ report.reason }}</p>
+            {% endif %}
+            <form method="post" action="{{ url_for('equipe.post_resolver_denuncia', id_d=report.id_d) }}">
               <button class="button secondary" type="submit">Marcar como resolvida</button>
             </form>
           </div>

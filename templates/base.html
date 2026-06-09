@@ -44,7 +44,9 @@
                 </div>
               </div>
               <div class="hero-meta">
-                <div class="dropdown-link" aria-hidden="true">{{ current_user.points }} pontos</div>
+                {% if current_user.role == 'aluno' %}
+                  <div class="dropdown-link" aria-hidden="true">{{ current_user.points }} pontos</div>
+                {% endif %}
                 {% if current_user.course %}
                   <div class="dropdown-link">{{ current_user.course }}</div>
                 {% endif %}

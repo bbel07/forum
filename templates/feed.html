@@ -65,7 +65,8 @@
           {% endif %}
         </div>
         <div class="action-row">
-          <a class="button primary" href="{{ url_for(base_path ~ '.forum', id_pergunta=question.id_pergunta) }}">Abrir forum</a>        </div>
+          <a class="button primary" href="{{ url_for(base_path ~ '.forum', id_pergunta=question.id_pergunta) }}">{{ question_action_label if question_action_label is defined else 'Abrir forum' }}</a>
+        </div>
       </article>
     {% else %}
       <article class="card empty-card">

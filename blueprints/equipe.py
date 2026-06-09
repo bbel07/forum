@@ -142,17 +142,52 @@ def post_remover_resposta(id_pergunta, id_r):
 # Moderação
 # ---------------------------------------------------------------------------
 
+def _annotate_denuncia(report):
+    report.target_type = report.tipo_alvo
+    report.created_at = report.criado_em
+    report.reason = report.motivo
+    report.reporter_name = None
+    report.target_name = "Usuário desconhecido"
+    report.target_title = ""
+    report.target_content = ""
+
+    if report.cp_autor:
+        autor = LoginAluno.query.get(report.cp_autor)
+        report.reporter_name = autor.nome if autor else "Usuário desconhecido"
+    else:
+        report.reporter_name = "Usuário desconhecido"
+
+    if report.tipo_alvo == "pergunta" and report.id_pergunta:
+        pergunta = Pergunta.query.get(report.id_pergunta)
+        if pergunta:
+            autor_alvo = LoginAluno.query.get(pergunta.cp)
+            report.target_name = autor_alvo.nome if autor_alvo else "Usuário desconhecido"
+            report.target_title = pergunta.titulo
+            report.target_content = pergunta.descricao
+    elif report.tipo_alvo == "resposta" and report.id_r:
+        resposta = Resposta.query.get(report.id_r)
+        if resposta:
+            autor_alvo = LoginAluno.query.get(resposta.cp)
+            report.target_name = autor_alvo.nome if autor_alvo else "Usuário desconhecido"
+            report.target_content = resposta.conteudo
+            report.target_title = "Resposta"
+    return report
+
+
 @equipe_bp.get("/moderacao")
 @requer_equipe
 def moderacao():
     denuncias = Denuncia.query.filter_by(status="aberta")\
         .order_by(Denuncia.criado_em.desc()).all()
+    for denuncia in denuncias:
+        _annotate_denuncia(denuncia)
     return render_template(
         "moderation.html",
         page_title="Moderação",
         area_title="Painel de moderação",
         area_subtitle="Tela exclusiva para professores e mediadores.",
         reports=denuncias,
+        flagged_users=[],
         base_path="equipe",
     )
 
@@ -225,4 +260,28 @@ def disciplinas():
         area_title="Disciplinas por curso e semestre",
         area_subtitle="Grade acadêmica completa.",
         base_path="equipe",
+    )
+
+
+@equipe_bp.get("/disciplinas/<path:disciplina>")
+@requer_equipe
+def disciplina_forum(disciplina):
+    from app import COURSE_CATALOG
+
+    perguntas = Pergunta.query.filter_by(oculta=False, disciplina=disciplina)
+    perguntas = perguntas.order_by(Pergunta.postado_em.desc()).all()
+    perguntas = [enrich_question(p) for p in perguntas]
+
+    return render_template(
+        "feed.html",
+        page_title=f"Fórum - {disciplina}",
+        area_title="Fórum da disciplina",
+        area_subtitle=f"Perguntas sobre {disciplina}.",
+        questions=perguntas,
+        metrics=get_metrics(),
+        is_staff=True,
+        base_path="equipe",
+        filters={"discipline": disciplina},
+        course_catalog=COURSE_CATALOG,
+        question_action_label="Perguntas e respostas",
     )

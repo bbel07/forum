@@ -54,6 +54,30 @@ def feed():
     )
 
 
+@aluno_bp.get("/disciplinas/<path:disciplina>")
+@requer_aluno
+def disciplina_forum(disciplina):
+    from app import COURSE_CATALOG
+
+    perguntas = Pergunta.query.filter_by(oculta=False, disciplina=disciplina)
+    perguntas = perguntas.order_by(Pergunta.postado_em.desc()).all()
+    perguntas = [enrich_question(p) for p in perguntas]
+
+    return render_template(
+        "feed.html",
+        page_title=f"Fórum - {disciplina}",
+        area_title="Fórum da disciplina",
+        area_subtitle=f"Perguntas sobre {disciplina}.",
+        questions=perguntas,
+        metrics=get_metrics(),
+        is_staff=False,
+        base_path="aluno",
+        filters={"discipline": disciplina},
+        course_catalog=COURSE_CATALOG,
+        question_action_label="Perguntas e respostas",
+    )
+
+
 # ---------------------------------------------------------------------------
 # Fórum (visualizar pergunta + respostas)
 # ---------------------------------------------------------------------------
