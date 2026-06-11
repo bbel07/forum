@@ -183,7 +183,7 @@ def post_remover_comentario_pergunta(id_pergunta, id_c):
 
     ok, msg = remover_comentario(id_c)
     flash(msg, "success" if ok else "warning")
-    return redirect(url_for("aluno.forum", id_pergunta=id_pergunta))
+    return redirect(url_for("aluno.feed"))
 
 
 @aluno_bp.post("/forum/<int:id_pergunta>/resposta/<int:id_r>/remover")
@@ -197,7 +197,7 @@ def post_remover_resposta(id_pergunta, id_r):
 
     ok, msg = remover_resposta(id_r)
     flash(msg, "success" if ok else "warning")
-    return redirect(url_for("aluno.forum", id_pergunta=id_pergunta))
+    return redirect(url_for("aluno.feed"))
 
 
 @aluno_bp.post("/forum/<int:id_pergunta>/resposta/<int:id_r>/comentario/<int:id_c>/remover")
