@@ -2,7 +2,7 @@
 Funções de negócio — sem rotas, sem render_template.
 Importadas pelos blueprints e pelo app.py.
 """
-from datetime import datetime
+from datetime import datetime, timedelta
 import os
 import re
 import uuid
@@ -173,6 +173,34 @@ def get_metrics() -> dict:
     }
 
 
+def is_user_blocked(user) -> bool:
+    return bool(getattr(user, "bloqueado_ate", None) and user.bloqueado_ate > datetime.utcnow())
+
+
+def get_observed_students():
+    agora = datetime.utcnow()
+    return LoginAluno.query.filter(LoginAluno.bloqueado_ate != None, LoginAluno.bloqueado_ate > agora).all()
+
+
+def observar_aluno(cp: str, minutos: int = 30):
+    aluno = LoginAluno.query.get(cp)
+    if not aluno:
+        return False, "Aluno não encontrado."
+
+    agora = datetime.utcnow()
+    if aluno.bloqueado_ate and aluno.bloqueado_ate > agora:
+        aluno.bloqueado_ate += timedelta(minutes=minutos)
+    else:
+        aluno.bloqueado_ate = agora + timedelta(minutes=minutos)
+
+    try:
+        db.session.commit()
+        return True, f"Aluno em observação até {format_date(aluno.bloqueado_ate)}."
+    except Exception:
+        db.session.rollback()
+        return False, "Erro ao colocar aluno em observação."
+
+
 # ---------------------------------------------------------------------------
 # Autenticação
 # ---------------------------------------------------------------------------
@@ -195,6 +223,8 @@ def fazer_login(email: str, senha: str, role: str):
         return False, "Usuário não encontrado."
     if hash_db != hash_password(senha):
         return False, "E-mail ou senha incorretos."
+    if role == "student" and is_user_blocked(user):
+        return False, f"Aluno em observação até {format_date(user.bloqueado_ate)}."
 
     session["user_id"] = user_id
     return True, "Bem-vindo!"
@@ -408,6 +438,13 @@ def criar_denuncia(tipo_alvo: str, id_alvo: int, motivo: str = ""):
     if not user_id:
         return False, "Faça login para denunciar."
 
+    if tipo_alvo == "pergunta":
+        pergunta = Pergunta.query.get(id_alvo)
+        if pergunta and pergunta.cp:
+            aluno = LoginAluno.query.get(pergunta.cp)
+            if aluno and is_user_blocked(aluno):
+                aluno.bloqueado_ate += timedelta(minutes=30)
+
     nova = Denuncia(
         tipo_alvo=tipo_alvo,
         id_pergunta=id_alvo if tipo_alvo == "pergunta" else None,
@@ -450,9 +487,52 @@ def remover_resposta(id_r: int):
     resposta = Resposta.query.get(id_r)
     if not resposta:
         return False, "Resposta não encontrada."
+
+    if resposta.pergunta and resposta.pergunta.aceita_id == id_r:
+        resposta.pergunta.aceita_id = None
+
+    Comentario.query.filter_by(id_r=id_r).delete(synchronize_session=False)
+    Upload.query.filter_by(id_r=id_r).delete(synchronize_session=False)
+    Voto.query.filter_by(id_r=id_r).delete(synchronize_session=False)
     db.session.delete(resposta)
     db.session.commit()
     return True, "Resposta removida."
+
+
+def remover_comentario(id_c: int):
+    comentario = Comentario.query.get(id_c)
+    if not comentario:
+        return False, "Comentário não encontrado."
+    Upload.query.filter_by(id_c=id_c).delete(synchronize_session=False)
+    db.session.delete(comentario)
+    db.session.commit()
+    return True, "Comentário removido."
+
+
+def remover_pergunta(id_pergunta: int):
+    pergunta = Pergunta.query.get(id_pergunta)
+    if not pergunta:
+        return False, "Pergunta não encontrada."
+
+    answer_ids = [r.id_r for r in pergunta.respostas]
+    comment_ids = [c.id_c for c in pergunta.comentarios]
+
+    Voto.query.filter_by(id_pergunta=id_pergunta).delete(synchronize_session=False)
+    Upload.query.filter_by(id_pergunta=id_pergunta).delete(synchronize_session=False)
+    Comentario.query.filter_by(id_pergunta=id_pergunta).delete(synchronize_session=False)
+
+    if answer_ids:
+        Comentario.query.filter(Comentario.id_r.in_(answer_ids)).delete(synchronize_session=False)
+        Upload.query.filter(Upload.id_r.in_(answer_ids)).delete(synchronize_session=False)
+        Voto.query.filter(Voto.id_r.in_(answer_ids)).delete(synchronize_session=False)
+        Resposta.query.filter(Resposta.id_r.in_(answer_ids)).delete(synchronize_session=False)
+
+    if comment_ids:
+        Upload.query.filter(Upload.id_c.in_(comment_ids)).delete(synchronize_session=False)
+
+    db.session.delete(pergunta)
+    db.session.commit()
+    return True, "Pergunta removida."
 
 
 # ---------------------------------------------------------------------------

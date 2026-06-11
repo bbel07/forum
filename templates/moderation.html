@@ -20,6 +20,14 @@
             {% if report.reason %}
               <p class="meta-line"><strong>Motivo:</strong> {{ report.reason }}</p>
             {% endif %}
+            {% if report.question_id %}
+              <a class="button ghost" href="{{ url_for('equipe.forum', id_pergunta=report.question_id) }}">Abrir pergunta</a>
+            {% endif %}
+            {% if report.reported_cp %}
+              <form method="post" action="{{ url_for('equipe.post_observar_aluno', cp=report.reported_cp) }}">
+                <button class="button danger" type="submit">Colocar em observação +30min</button>
+              </form>
+            {% endif %}
             <form method="post" action="{{ url_for('equipe.post_resolver_denuncia', id_d=report.id_d) }}">
               <button class="button secondary" type="submit">Marcar como resolvida</button>
             </form>
@@ -37,12 +45,10 @@
           <div class="thread-item">
             <strong>{{ user.name }}</strong>
             <span>{{ role_label(user.role) }}</span>
-            <p>Falhas de login: {{ user.failed_login_count }}</p>
-            <p>Status: {{ 'bloqueado' if user.blocked else 'ativo' }}</p>
-            <form method="post" action="{{ url_for('post_toggle_user', user_id=user.id) }}">
-              <button class="button danger" type="submit">
-                {% if user.blocked %}Desbloquear{% else %}Bloquear{% endif %}
-              </button>
+            <p>E-mail: {{ user.email }}</p>
+            <p>Status: {{ 'bloqueado até ' ~ format_date(user.bloqueado_ate) }}</p>
+            <form method="post" action="{{ url_for('equipe.post_observar_aluno', cp=user.cp) }}">
+              <button class="button danger" type="submit">Prorrogar observação +30min</button>
             </form>
           </div>
         {% else %}

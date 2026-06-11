@@ -24,15 +24,21 @@
 
     <div class="action-row wrap">
       <form method="post" action="{{ url_for(base_path ~ '.post_voto_pergunta', id_pergunta=question.id) }}">
-        <input type="hidden" name="value" value="1">
+        <input type="hidden" name="tipo" value="positivo">
         <input type="hidden" name="next_url" value="{{ request.path }}">
         <button class="button ghost" type="submit">Voto +</button>
       </form>
       <form method="post" action="{{ url_for(base_path ~ '.post_voto_pergunta', id_pergunta=question.id) }}">
-        <input type="hidden" name="value" value="-1">
+        <input type="hidden" name="tipo" value="negativo">
         <input type="hidden" name="next_url" value="{{ request.path }}">
         <button class="button ghost" type="submit">Voto -</button>
       </form>
+      {% if current_user and (is_staff or (current_user.role == 'aluno' and question.cp == current_user.cp)) %}
+        <form method="post" action="{{ url_for(base_path ~ '.post_remover_pergunta', id_pergunta=question.id) }}">
+          <input type="hidden" name="next_url" value="{{ request.path }}">
+          <button class="button danger" type="submit">Excluir pergunta</button>
+        </form>
+      {% endif %}
       {% if not is_staff %}
         <form method="post" action="{{ url_for('aluno.post_denuncia_pergunta', id_pergunta=question.id) }}">
           <input type="hidden" name="next_url" value="{{ request.path }}">
@@ -57,6 +63,12 @@
             <strong>{{ comment.author_name }}</strong>
             <span>{{ format_date(comment.created_at) }}</span>
             <p>{{ comment.content }}</p>
+            {% if current_user and (is_staff or (current_user.role == 'aluno' and comment.cp == current_user.cp) or (current_user.role != 'aluno' and comment.email_p == current_user.email)) %}
+              <form method="post" action="{{ url_for(base_path ~ '.post_remover_comentario_pergunta', id_pergunta=question.id, id_c=comment.id_c) }}">
+                <input type="hidden" name="next_url" value="{{ request.path }}">
+                <button class="button danger small" type="submit">Excluir comentário</button>
+              </form>
+            {% endif %}
           </div>
         {% else %}
           <p class="muted">Nenhum comentario ainda.</p>
@@ -109,16 +121,21 @@
 
         <div class="action-row wrap">
           <form method="post" action="{{ url_for(base_path ~ '.post_voto_resposta', id_pergunta=question.id, id_r=answer.id) }}">
-            <input type="hidden" name="value" value="1">
+            <input type="hidden" name="tipo" value="positivo">
             <input type="hidden" name="next_url" value="{{ request.path }}">
             <button class="button ghost" type="submit">Voto +</button>
           </form>
           <form method="post" action="{{ url_for(base_path ~ '.post_voto_resposta', id_pergunta=question.id, id_r=answer.id) }}">
-            <input type="hidden" name="value" value="-1">
+            <input type="hidden" name="tipo" value="negativo">
             <input type="hidden" name="next_url" value="{{ request.path }}">
             <button class="button ghost" type="submit">Voto -</button>
           </form>
-          {% if not is_staff %}
+          {% if current_user and (is_staff or (current_user.role == 'aluno' and answer.cp == current_user.cp)) %}
+            <form method="post" action="{{ url_for(base_path ~ '.post_remover_resposta', id_pergunta=question.id, id_r=answer.id) }}">
+              <input type="hidden" name="next_url" value="{{ request.path }}">
+              <button class="button danger" type="submit">Excluir resposta</button>
+            </form>
+          {% elif not is_staff %}
             <form method="post" action="{{ url_for('aluno.post_denuncia_resposta', id_pergunta=question.id, id_r=answer.id) }}">
               <input type="hidden" name="next_url" value="{{ request.path }}">
               <button class="button ghost" type="submit">Denunciar</button>
@@ -132,12 +149,6 @@
               </button>
             </form>
           {% endif %}
-          {% if is_staff %}
-            <form method="post" action="{{ url_for('equipe.post_remover_resposta', id_pergunta=question.id, id_r=answer.id) }}">
-              <input type="hidden" name="next_url" value="{{ request.path }}">
-              <button class="button danger" type="submit">Excluir resposta</button>
-            </form>
-          {% endif %}
         </div>
 
         <div class="thread-list compact">
@@ -146,6 +157,12 @@
               <strong>{{ comment.author_name }}</strong>
               <span>{{ format_date(comment.created_at) }}</span>
               <p>{{ comment.content }}</p>
+              {% if current_user and (is_staff or (current_user.role == 'aluno' and comment.cp == current_user.cp) or (current_user.role != 'aluno' and comment.email_p == current_user.email)) %}
+                <form method="post" action="{{ url_for(base_path ~ '.post_remover_comentario_resposta', id_pergunta=question.id, id_r=answer.id, id_c=comment.id_c) }}">
+                  <input type="hidden" name="next_url" value="{{ request.path }}">
+                  <button class="button danger small" type="submit">Excluir comentário</button>
+                </form>
+              {% endif %}
             </div>
           {% else %}
             <p class="muted">Nenhum comentario nesta resposta.</p>

@@ -8,12 +8,14 @@ class LoginAluno(db.Model):
     nome = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(150), unique=True, nullable=False)
     senha_hash = db.Column(db.String(255), nullable=False)
+    bloqueado_ate = db.Column(db.DateTime, nullable=True)
     criado_em = db.Column(db.DateTime, default=datetime.utcnow)
     atualizado_em = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relacionamentos
     perguntas = db.relationship('Pergunta', backref='aluno', lazy=True)
     respostas = db.relationship('Resposta', backref='aluno', lazy=True)
+
     @property
     def role(self):
         return 'aluno'
@@ -21,6 +23,10 @@ class LoginAluno(db.Model):
     @property
     def name(self):
         return self.nome
+
+    @property
+    def blocked(self):
+        return bool(self.bloqueado_ate and self.bloqueado_ate > datetime.utcnow())
 
 class LoginProfessor(db.Model):
     __tablename__ = 'login_professor'

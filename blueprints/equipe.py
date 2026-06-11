@@ -3,12 +3,13 @@ Blueprint: área da equipe (professores e mediadores)
 Prefixo: /equipe
 """
 from flask import Blueprint, flash, redirect, render_template, request, session, url_for
-from models import LoginAluno, LoginProfessor, Pergunta, Resposta, Denuncia, Notificacao
+from models import LoginAluno, LoginProfessor, Pergunta, Resposta, Comentario, Denuncia, Notificacao
 from services import (
     enrich_question, get_metrics, get_current_user, is_aluno,
     criar_comentario,
     votar, resolver_denuncia,
-    ocultar_pergunta, remover_resposta,
+    ocultar_pergunta, remover_pergunta, remover_resposta, remover_comentario,
+    get_observed_students, observar_aluno,
     atualizar_perfil,
 )
 
@@ -101,6 +102,38 @@ def post_comentario_resposta(id_pergunta, id_r):
     return redirect(url_for("equipe.forum", id_pergunta=id_pergunta))
 
 
+@equipe_bp.post("/forum/<int:id_pergunta>/remover")
+@requer_equipe
+def post_remover_pergunta(id_pergunta):
+    ok, msg = remover_pergunta(id_pergunta)
+    flash(msg, "success" if ok else "warning")
+    return redirect(url_for("equipe.feed"))
+
+
+@equipe_bp.post("/forum/<int:id_pergunta>/comentario/<int:id_c>/remover")
+@requer_equipe
+def post_remover_comentario_pergunta(id_pergunta, id_c):
+    ok, msg = remover_comentario(id_c)
+    flash(msg, "success" if ok else "warning")
+    return redirect(url_for("equipe.forum", id_pergunta=id_pergunta))
+
+
+@equipe_bp.post("/forum/<int:id_pergunta>/resposta/<int:id_r>/remover")
+@requer_equipe
+def post_remover_resposta(id_pergunta, id_r):
+    ok, msg = remover_resposta(id_r)
+    flash(msg, "success" if ok else "warning")
+    return redirect(url_for("equipe.forum", id_pergunta=id_pergunta))
+
+
+@equipe_bp.post("/forum/<int:id_pergunta>/resposta/<int:id_r>/comentario/<int:id_c>/remover")
+@requer_equipe
+def post_remover_comentario_resposta(id_pergunta, id_r, id_c):
+    ok, msg = remover_comentario(id_c)
+    flash(msg, "success" if ok else "warning")
+    return redirect(url_for("equipe.forum", id_pergunta=id_pergunta))
+
+
 @equipe_bp.post("/forum/<int:id_pergunta>/votar")
 @requer_equipe
 def post_voto_pergunta(id_pergunta):
@@ -126,14 +159,6 @@ def post_voto_resposta(id_pergunta, id_r):
 @requer_equipe
 def post_ocultar_pergunta(id_pergunta):
     ok, msg = ocultar_pergunta(id_pergunta)
-    flash(msg, "success" if ok else "warning")
-    return redirect(url_for("equipe.forum", id_pergunta=id_pergunta))
-
-
-@equipe_bp.post("/forum/<int:id_pergunta>/resposta/<int:id_r>/remover")
-@requer_equipe
-def post_remover_resposta(id_pergunta, id_r):
-    ok, msg = remover_resposta(id_r)
     flash(msg, "success" if ok else "warning")
     return redirect(url_for("equipe.forum", id_pergunta=id_pergunta))
 
@@ -164,6 +189,8 @@ def _annotate_denuncia(report):
             report.target_name = autor_alvo.nome if autor_alvo else "Usuário desconhecido"
             report.target_title = pergunta.titulo
             report.target_content = pergunta.descricao
+            report.reported_cp = pergunta.cp
+            report.question_id = pergunta.id_pergunta
     elif report.tipo_alvo == "resposta" and report.id_r:
         resposta = Resposta.query.get(report.id_r)
         if resposta:
@@ -171,6 +198,8 @@ def _annotate_denuncia(report):
             report.target_name = autor_alvo.nome if autor_alvo else "Usuário desconhecido"
             report.target_content = resposta.conteudo
             report.target_title = "Resposta"
+            report.reported_cp = resposta.cp
+            report.question_id = resposta.id_pergunta
     return report
 
 
@@ -187,9 +216,17 @@ def moderacao():
         area_title="Painel de moderação",
         area_subtitle="Tela exclusiva para professores e mediadores.",
         reports=denuncias,
-        flagged_users=[],
+        flagged_users=get_observed_students(),
         base_path="equipe",
     )
+
+
+@equipe_bp.post("/moderacao/aluno/<string:cp>/observar")
+@requer_equipe
+def post_observar_aluno(cp):
+    ok, msg = observar_aluno(cp)
+    flash(msg, "success" if ok else "warning")
+    return redirect(url_for("equipe.moderacao"))
 
 
 @equipe_bp.post("/moderacao/denuncia/<int:id_d>/resolver")

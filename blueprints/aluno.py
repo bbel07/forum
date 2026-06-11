@@ -3,11 +3,12 @@ Blueprint: área do aluno
 Prefixo: /aluno
 """
 from flask import Blueprint, flash, redirect, render_template, request, session, url_for
-from models import LoginAluno, Pergunta, Resposta, Notificacao
+from models import LoginAluno, Pergunta, Resposta, Comentario, Notificacao
 from services import (
-    enrich_question, get_metrics, get_current_user,
+    enrich_question, get_metrics, get_current_user, is_aluno, is_user_blocked, format_date,
     criar_pergunta, criar_resposta, criar_comentario,
-    votar, criar_denuncia, aceitar_resposta, atualizar_perfil,
+    votar, criar_denuncia, aceitar_resposta, remover_pergunta,
+    remover_resposta, remover_comentario, atualizar_perfil,
 )
 
 aluno_bp = Blueprint("aluno", __name__, url_prefix="/aluno")
@@ -22,8 +23,12 @@ def requer_aluno(f):
     @wraps(f)
     def wrapped(*args, **kwargs):
         user_id = session.get("user_id")
-        if not user_id or not LoginAluno.query.get(user_id):
+        user = LoginAluno.query.get(user_id) if user_id else None
+        if not user:
             flash("Faça login como aluno para continuar.", "warning")
+            return redirect(url_for("login"))
+        if is_user_blocked(user):
+            flash(f"Aluno em observação até {format_date(user.bloqueado_ate)}.", "warning")
             return redirect(url_for("login"))
         return f(*args, **kwargs)
     return wrapped
@@ -149,6 +154,62 @@ def post_comentario_pergunta(id_pergunta):
 @requer_aluno
 def post_comentario_resposta(id_pergunta, id_r):
     ok, msg = criar_comentario(id_pergunta, request.form.get("content", ""), id_r=id_r)
+    flash(msg, "success" if ok else "warning")
+    return redirect(url_for("aluno.forum", id_pergunta=id_pergunta))
+
+
+@aluno_bp.post("/forum/<int:id_pergunta>/remover")
+@requer_aluno
+def post_remover_pergunta(id_pergunta):
+    pergunta = Pergunta.query.get_or_404(id_pergunta)
+    user = get_current_user()
+    if not (user and is_aluno(user) and pergunta.cp == user.cp):
+        flash("Você só pode excluir sua própria pergunta.", "warning")
+        return redirect(url_for("aluno.forum", id_pergunta=id_pergunta))
+
+    ok, msg = remover_pergunta(id_pergunta)
+    flash(msg, "success" if ok else "warning")
+    return redirect(url_for("aluno.feed"))
+
+
+@aluno_bp.post("/forum/<int:id_pergunta>/comentario/<int:id_c>/remover")
+@requer_aluno
+def post_remover_comentario_pergunta(id_pergunta, id_c):
+    comentario = Comentario.query.get_or_404(id_c)
+    user = get_current_user()
+    if not (user and is_aluno(user) and comentario.cp == user.cp):
+        flash("Você só pode excluir seu próprio comentário.", "warning")
+        return redirect(url_for("aluno.forum", id_pergunta=id_pergunta))
+
+    ok, msg = remover_comentario(id_c)
+    flash(msg, "success" if ok else "warning")
+    return redirect(url_for("aluno.forum", id_pergunta=id_pergunta))
+
+
+@aluno_bp.post("/forum/<int:id_pergunta>/resposta/<int:id_r>/remover")
+@requer_aluno
+def post_remover_resposta(id_pergunta, id_r):
+    resposta = Resposta.query.get_or_404(id_r)
+    user = get_current_user()
+    if not (user and is_aluno(user) and resposta.cp == user.cp):
+        flash("Você só pode excluir sua própria resposta.", "warning")
+        return redirect(url_for("aluno.forum", id_pergunta=id_pergunta))
+
+    ok, msg = remover_resposta(id_r)
+    flash(msg, "success" if ok else "warning")
+    return redirect(url_for("aluno.forum", id_pergunta=id_pergunta))
+
+
+@aluno_bp.post("/forum/<int:id_pergunta>/resposta/<int:id_r>/comentario/<int:id_c>/remover")
+@requer_aluno
+def post_remover_comentario_resposta(id_pergunta, id_r, id_c):
+    comentario = Comentario.query.get_or_404(id_c)
+    user = get_current_user()
+    if not (user and is_aluno(user) and comentario.cp == user.cp):
+        flash("Você só pode excluir seu próprio comentário.", "warning")
+        return redirect(url_for("aluno.forum", id_pergunta=id_pergunta))
+
+    ok, msg = remover_comentario(id_c)
     flash(msg, "success" if ok else "warning")
     return redirect(url_for("aluno.forum", id_pergunta=id_pergunta))
 
