@@ -10,22 +10,31 @@ import click
 
 app = Flask(__name__)
 
+load_dotenv()
+
 # ---------------------------------------------------------------------------
 # Configuração
 # ---------------------------------------------------------------------------
 app.secret_key = os.environ.get("SECRET_KEY", "ifsp-forum-demo-secret")
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
-    "DATABASE_URL",
-    "mysql+mysqlconnector://root:10112007@localhost/forum",
+
+def normalize_database_url(url: str) -> str:
+    if not url:
+        return "mysql+mysqlconnector://root:10112007@localhost/forum"
+    url = url.strip()
+    if url.startswith("mysql://") and "+" not in url:
+        return url.replace("mysql://", "mysql+mysqlconnector://", 1)
+    return url
+
+app.config["SQLALCHEMY_DATABASE_URI"] = normalize_database_url(
+    os.environ.get("DATABASE_URL", "")
 )
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-
-load_dotenv()
 
 db.init_app(app)
 
 app.config["MAIL_SERVER"] = os.environ.get("MAIL_SERVER", "")
-app.config["MAIL_PORT"] = int(os.environ.get("MAIL_PORT", 587))
+mail_port = os.environ.get("MAIL_PORT", "587").strip()
+app.config["MAIL_PORT"] = int(mail_port) if mail_port.isdigit() else 587
 app.config["MAIL_USE_TLS"] = os.environ.get("MAIL_USE_TLS", "true").lower() in ("1", "true", "yes")
 app.config["MAIL_USE_SSL"] = os.environ.get("MAIL_USE_SSL", "false").lower() in ("1", "true", "yes")
 app.config["MAIL_USERNAME"] = os.environ.get("MAIL_USERNAME", "")
