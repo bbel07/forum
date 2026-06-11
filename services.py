@@ -494,6 +494,7 @@ def remover_resposta(id_r: int):
     Comentario.query.filter_by(id_r=id_r).delete(synchronize_session=False)
     Upload.query.filter_by(id_r=id_r).delete(synchronize_session=False)
     Voto.query.filter_by(id_r=id_r).delete(synchronize_session=False)
+    Denuncia.query.filter_by(id_r=id_r).delete(synchronize_session=False)
     db.session.delete(resposta)
     db.session.commit()
     return True, "Resposta removida."
@@ -525,7 +526,10 @@ def remover_pergunta(id_pergunta: int):
         Comentario.query.filter(Comentario.id_r.in_(answer_ids)).delete(synchronize_session=False)
         Upload.query.filter(Upload.id_r.in_(answer_ids)).delete(synchronize_session=False)
         Voto.query.filter(Voto.id_r.in_(answer_ids)).delete(synchronize_session=False)
+        Denuncia.query.filter(Denuncia.id_r.in_(answer_ids)).delete(synchronize_session=False)
         Resposta.query.filter(Resposta.id_r.in_(answer_ids)).delete(synchronize_session=False)
+
+    Denuncia.query.filter_by(id_pergunta=id_pergunta).delete(synchronize_session=False)
 
     if comment_ids:
         Upload.query.filter(Upload.id_c.in_(comment_ids)).delete(synchronize_session=False)
