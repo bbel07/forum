@@ -45,12 +45,6 @@
           <button class="button ghost" type="submit">Denunciar</button>
         </form>
       {% endif %}
-      {% if is_staff %}
-        <form method="post" action="{{ url_for('equipe.post_ocultar_pergunta', id_pergunta=question.id) }}">
-          <input type="hidden" name="next_url" value="{{ request.path }}">
-          <button class="button danger" type="submit">Ocultar pergunta</button>
-        </form>
-      {% endif %}
     </div>
   </section>
 
