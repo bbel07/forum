@@ -10,7 +10,7 @@ from services import (
     votar, resolver_denuncia,
     ocultar_pergunta, remover_pergunta, remover_resposta, remover_comentario,
     get_observed_students, observar_aluno,
-    atualizar_perfil,
+    atualizar_perfil, aceitar_resposta,
 )
 
 equipe_bp = Blueprint("equipe", __name__, url_prefix="/equipe")
@@ -267,6 +267,17 @@ def perfil():
 # ---------------------------------------------------------------------------
 # Notificações
 # ---------------------------------------------------------------------------
+
+
+# ---------------------------------------------------------------------------
+# Aceitar/desmarcar resposta (mesma ação disponível para equipe)
+# ---------------------------------------------------------------------------
+@equipe_bp.post("/forum/<int:id_pergunta>/resposta/<int:id_r>/aceitar")
+@requer_equipe
+def post_aceitar_resposta(id_pergunta, id_r):
+    ok, msg = aceitar_resposta(id_pergunta, id_r)
+    flash(msg, "success" if ok else "warning")
+    return redirect(url_for("equipe.forum", id_pergunta=id_pergunta))
 
 @equipe_bp.get("/notificacoes")
 @requer_equipe
